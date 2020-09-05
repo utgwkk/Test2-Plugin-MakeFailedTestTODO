@@ -61,7 +61,6 @@ sub _make_failed_test_todo {
     my $todo_stmt = do {
         my $stmt = PPI::Statement->new;
         for my $child (
-            PPI::Token::Whitespace->new("\n"),
             PPI::Token::Word->new('todo'),
             PPI::Token::Whitespace->new(' '),
             PPI::Token::Quote::Single->new("'made TODO by Test2::Plugin::MakeFailedTestTODO'"),
