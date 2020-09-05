@@ -58,7 +58,6 @@ sub _make_failed_test_todo {
     return unless $test_stmt;
 
     # todo 'by Test2::Plugin::MakeFailedTestTODO' => sub { ... };
-    warn $line;
     my $todo_stmt = do {
         my $stmt = PPI::Statement->new;
         for my $child (
