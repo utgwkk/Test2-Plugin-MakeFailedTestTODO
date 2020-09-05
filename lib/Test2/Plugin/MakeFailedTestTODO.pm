@@ -13,7 +13,6 @@ use Test2::API qw(
 our $VERSION = "0.01";
 
 my $loaded;
-my $ppi_cache = +{};
 
 sub import {
     my ($class) = @_;
@@ -47,7 +46,7 @@ sub _fail_in_test_file {
 
 sub _make_failed_test_todo {
     my ($file, $line) = @_;
-    my $doc = $ppi_cache->{$file} ||= PPI::Document->new($file);
+    my $doc = PPI::Document->new($file);
     return unless $doc;
 
     my $test_stmt = $doc->find_first(sub {
@@ -58,6 +57,7 @@ sub _make_failed_test_todo {
     return unless $test_stmt;
 
     # todo 'made TODO by Test2::Plugin::MakeFailedTestTODO' => sub { ... };
+    warn $line;
     my $todo_stmt = do {
         my $stmt = PPI::Statement->new;
         for my $child (
