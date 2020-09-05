@@ -29,6 +29,7 @@ sub listener {
 
     return unless $event->causes_fail;
     return if $event->can('subevents'); # ignore subtest
+    return if $event->terminate; # ignora bail_out
 
     my $trace = $event->trace;
     my $file = $trace->file;
