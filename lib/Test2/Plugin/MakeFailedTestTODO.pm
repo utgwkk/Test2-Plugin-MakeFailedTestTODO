@@ -56,14 +56,14 @@ sub _make_failed_test_todo {
     });
     return unless $test_stmt;
 
-    # todo 'made TODO by Test2::Plugin::MakeFailedTestTODO' => sub { ... };
+    # todo 'by Test2::Plugin::MakeFailedTestTODO' => sub { ... };
     warn $line;
     my $todo_stmt = do {
         my $stmt = PPI::Statement->new;
         for my $child (
             PPI::Token::Word->new('todo'),
             PPI::Token::Whitespace->new(' '),
-            PPI::Token::Quote::Single->new("'made TODO by Test2::Plugin::MakeFailedTestTODO'"),
+            PPI::Token::Quote::Single->new("'by Test2::Plugin::MakeFailedTestTODO'"),
             PPI::Token::Whitespace->new(' '),
             PPI::Token->new('=>'),
             PPI::Token::Whitespace->new(' '),
