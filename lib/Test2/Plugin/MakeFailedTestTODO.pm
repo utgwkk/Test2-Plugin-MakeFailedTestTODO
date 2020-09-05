@@ -69,6 +69,7 @@ sub _make_failed_test_todo {
             PPI::Token->new('=>'),
             PPI::Token::Whitespace->new(' '),
             PPI::Token::Word->new('sub'),
+            PPI::Token::Whitespace->new(' '),
         ) {
             $stmt->add_element($child);
         }
@@ -83,6 +84,7 @@ sub _make_failed_test_todo {
             $_sub;
         };
         $stmt->add_element($sub);
+        $stmt->add_element(PPI::Token::Structure->new(';'));
         $stmt;
     };
 
