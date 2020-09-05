@@ -3,6 +3,7 @@ use 5.008001;
 use strict;
 use warnings;
 
+use List::Util qw(any);
 use PPI;
 use Test2::API qw(
     test2_add_callback_post_load
@@ -48,6 +49,47 @@ sub _make_failed_test_todo {
     my ($file, $line) = @_;
     my $doc = $ppi_cache->{$file} ||= PPI::Document->new($file);
     return unless $doc;
+
+    my $test_stmt = $doc->find_first(sub {
+        my (undef, $elem) = @_;
+        $elem->isa('PPI::Statement')
+        && any { $_->line_number == $line } $elem->children;
+    });
+    return unless $test_stmt;
+
+    # todo 'made TODO by Test2::Plugin::MakeFailedTestTODO' => sub { ... };
+    my $todo_stmt = do {
+        my $stmt = PPI::Statement->new;
+        for my $child (
+            PPI::Token::Whitespace->new("\n"),
+            PPI::Token::Word->new('todo'),
+            PPI::Token::Whitespace->new(' '),
+            PPI::Token::Quote::Single->new("'made TODO by Test2::Plugin::MakeFailedTestTODO'"),
+            PPI::Token::Whitespace->new(' '),
+            PPI::Token->new('=>'),
+            PPI::Token::Whitespace->new(' '),
+            PPI::Token::Word->new('sub'),
+        ) {
+            $stmt->add_element($child);
+        }
+        my $sub = do {
+            my $_sub = PPI::Structure::Block->new(
+                PPI::Token::Structure->new('{'),
+            );
+            $_sub->{finish} = PPI::Token::Structure->new('}'),
+            $_sub->add_element(PPI::Token::Whitespace->new(' '));
+            $_sub->add_element($test_stmt->clone);
+            $_sub->add_element(PPI::Token::Whitespace->new(' '));
+            $_sub;
+        };
+        $stmt->add_element($sub);
+        $stmt;
+    };
+
+    $test_stmt->insert_before($todo_stmt);
+    $test_stmt->remove;
+
+    $doc->save($file);
 }
 
 1;
